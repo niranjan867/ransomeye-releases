@@ -1,0 +1,593 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>RansomEye — Forensic & Defensive Endpoint Analysis Platform</title>
+  <meta name="description" content="RansomEye: Defensive endpoint threat detection, digital forensics, and incident investigation platform for Windows. Download official standalone executable.">
+  <!-- Inline SVG Favicon (Cyber Shield & Eye) -->
+  <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%2300ffaa' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z'/%3E%3Ccircle cx='12' cy='12' r='3'/%3E%3C/svg%3E">
+  <style>
+    :root {
+      --bg: #090d16;
+      --surface: #111827;
+      --surface-border: #1f293d;
+      --card-bg: #141e33;
+      --card-border: #24324f;
+      --text: #e2e8f0;
+      --text-muted: #94a3b8;
+      --text-highlight: #f8fafc;
+      --primary: #00e599;
+      --primary-hover: #00c785;
+      --primary-glow: rgba(0, 229, 153, 0.25);
+      --accent: #38bdf8;
+      --warning: #f59e0b;
+      --warning-bg: rgba(245, 158, 11, 0.08);
+      --warning-border: rgba(245, 158, 11, 0.3);
+      --notice-bg: rgba(56, 189, 248, 0.08);
+      --notice-border: rgba(56, 189, 248, 0.3);
+      --code-bg: #0b1120;
+      --code-border: #1e293b;
+      --font-sans: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen, Ubuntu, Cantarell, "Helvetica Neue", sans-serif;
+      --font-mono: ui-monospace, SFMono-Regular, "SF Mono", Menlo, Consolas, "Liberation Mono", monospace;
+    }
+
+    @media (prefers-color-scheme: light) {
+      :root {
+        --bg: #f8fafc;
+        --surface: #ffffff;
+        --surface-border: #e2e8f0;
+        --card-bg: #f1f5f9;
+        --card-border: #cbd5e1;
+        --text: #0f172a;
+        --text-muted: #475569;
+        --text-highlight: #020617;
+        --primary: #059669;
+        --primary-hover: #047857;
+        --primary-glow: rgba(5, 150, 105, 0.25);
+        --accent: #0284c7;
+        --warning: #b45309;
+        --warning-bg: #fef3c7;
+        --warning-border: #fcd34d;
+        --notice-bg: #e0f2fe;
+        --notice-border: #bae6fd;
+        --code-bg: #e2e8f0;
+        --code-border: #cbd5e1;
+      }
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      background-color: var(--bg);
+      color: var(--text);
+      font-family: var(--font-sans);
+      line-height: 1.6;
+      padding: 0;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+    }
+
+    header {
+      border-bottom: 1px solid var(--surface-border);
+      background-color: var(--surface);
+      padding: 1.25rem 2rem;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      position: sticky;
+      top: 0;
+      z-index: 50;
+      backdrop-filter: blur(8px);
+    }
+
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+      text-decoration: none;
+      color: var(--text-highlight);
+      font-weight: 700;
+      font-size: 1.25rem;
+      letter-spacing: -0.025em;
+    }
+
+    .brand-icon {
+      width: 28px;
+      height: 28px;
+      color: var(--primary);
+    }
+
+    .nav-links {
+      display: flex;
+      gap: 1.25rem;
+      align-items: center;
+    }
+
+    .nav-links a {
+      color: var(--text-muted);
+      text-decoration: none;
+      font-size: 0.9rem;
+      font-weight: 500;
+      transition: color 0.15s ease;
+    }
+
+    .nav-links a:hover {
+      color: var(--text-highlight);
+    }
+
+    main {
+      flex: 1;
+      max-width: 960px;
+      margin: 0 auto;
+      padding: 3rem 1.5rem 4rem;
+      width: 100%;
+    }
+
+    .hero {
+      text-align: center;
+      margin-bottom: 3.5rem;
+    }
+
+    .badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.5rem;
+      padding: 0.35rem 0.85rem;
+      background-color: var(--card-bg);
+      border: 1px solid var(--card-border);
+      border-radius: 9999px;
+      font-size: 0.825rem;
+      color: var(--accent);
+      font-weight: 600;
+      margin-bottom: 1.25rem;
+      letter-spacing: 0.025em;
+    }
+
+    .badge-dot {
+      width: 8px;
+      height: 8px;
+      background-color: var(--primary);
+      border-radius: 50%;
+      box-shadow: 0 0 8px var(--primary);
+    }
+
+    h1 {
+      font-size: clamp(2.25rem, 5vw, 3.25rem);
+      font-weight: 800;
+      color: var(--text-highlight);
+      line-height: 1.15;
+      margin-bottom: 1rem;
+      letter-spacing: -0.03em;
+    }
+
+    .tagline {
+      font-size: clamp(1.15rem, 2.5vw, 1.4rem);
+      color: var(--primary);
+      font-weight: 600;
+      margin-bottom: 1rem;
+    }
+
+    .description {
+      font-size: 1.1rem;
+      color: var(--text-muted);
+      max-width: 680px;
+      margin: 0 auto 2.5rem;
+    }
+
+    .cta-card {
+      background: linear-gradient(180deg, var(--surface) 0%, var(--card-bg) 100%);
+      border: 1px solid var(--surface-border);
+      border-radius: 16px;
+      padding: 2.5rem 2rem;
+      margin-bottom: 3rem;
+      box-shadow: 0 20px 40px -15px rgba(0, 0, 0, 0.4);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      text-align: center;
+    }
+
+    .download-btn {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 0.75rem;
+      background-color: var(--primary);
+      color: #05140f;
+      font-weight: 700;
+      font-size: 1.15rem;
+      padding: 1rem 2.25rem;
+      border-radius: 12px;
+      text-decoration: none;
+      box-shadow: 0 4px 20px var(--primary-glow);
+      transition: transform 0.15s ease, background-color 0.15s ease, box-shadow 0.15s ease;
+      cursor: pointer;
+    }
+
+    .download-btn:hover {
+      background-color: var(--primary-hover);
+      transform: translateY(-2px);
+      box-shadow: 0 8px 28px var(--primary-glow);
+    }
+
+    .download-btn svg {
+      width: 24px;
+      height: 24px;
+    }
+
+    .release-meta {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: center;
+      gap: 1.5rem;
+      margin-top: 1.25rem;
+      font-size: 0.875rem;
+      color: var(--text-muted);
+    }
+
+    .release-meta span {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.4rem;
+    }
+
+    .meta-strong {
+      color: var(--text-highlight);
+      font-weight: 600;
+    }
+
+    .checksum-box {
+      width: 100%;
+      margin-top: 2rem;
+      background-color: var(--code-bg);
+      border: 1px solid var(--code-border);
+      border-radius: 10px;
+      padding: 1.25rem;
+      text-align: left;
+    }
+
+    .checksum-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 0.5rem;
+      font-size: 0.8rem;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      color: var(--text-muted);
+    }
+
+    .checksum-value {
+      font-family: var(--font-mono);
+      font-size: 0.825rem;
+      word-break: break-all;
+      color: var(--accent);
+      background: transparent;
+      user-select: all;
+    }
+
+    .copy-btn {
+      background: transparent;
+      border: 1px solid var(--surface-border);
+      color: var(--text-muted);
+      padding: 0.25rem 0.6rem;
+      border-radius: 6px;
+      font-size: 0.75rem;
+      cursor: pointer;
+      transition: all 0.15s ease;
+    }
+
+    .copy-btn:hover {
+      color: var(--text-highlight);
+      border-color: var(--accent);
+    }
+
+    .section-title {
+      font-size: 1.5rem;
+      font-weight: 700;
+      color: var(--text-highlight);
+      margin-bottom: 1.5rem;
+      display: flex;
+      align-items: center;
+      gap: 0.6rem;
+    }
+
+    .features-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+      gap: 1.25rem;
+      margin-bottom: 3rem;
+    }
+
+    .feature-card {
+      background-color: var(--surface);
+      border: 1px solid var(--surface-border);
+      border-radius: 12px;
+      padding: 1.25rem 1.5rem;
+      transition: border-color 0.15s ease;
+    }
+
+    .feature-card:hover {
+      border-color: var(--card-border);
+    }
+
+    .feature-title {
+      font-size: 1rem;
+      font-weight: 600;
+      color: var(--text-highlight);
+      margin-bottom: 0.35rem;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+
+    .feature-desc {
+      font-size: 0.875rem;
+      color: var(--text-muted);
+      line-height: 1.45;
+    }
+
+    .notice-card {
+      border-radius: 12px;
+      padding: 1.25rem 1.5rem;
+      margin-bottom: 1.5rem;
+      border: 1px solid transparent;
+    }
+
+    .notice-info {
+      background-color: var(--notice-bg);
+      border-color: var(--notice-border);
+    }
+
+    .notice-warning {
+      background-color: var(--warning-bg);
+      border-color: var(--warning-border);
+    }
+
+    .notice-title {
+      font-size: 0.95rem;
+      font-weight: 700;
+      margin-bottom: 0.35rem;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+
+    .notice-info .notice-title {
+      color: var(--accent);
+    }
+
+    .notice-warning .notice-title {
+      color: var(--warning);
+    }
+
+    .notice-body {
+      font-size: 0.875rem;
+      color: var(--text);
+      line-height: 1.5;
+    }
+
+    .verify-terminal {
+      background-color: var(--code-bg);
+      border: 1px solid var(--code-border);
+      border-radius: 10px;
+      padding: 1.25rem;
+      margin-top: 1.25rem;
+      font-family: var(--font-mono);
+      font-size: 0.825rem;
+      overflow-x: auto;
+    }
+
+    .terminal-label {
+      color: var(--text-muted);
+      margin-bottom: 0.5rem;
+      font-size: 0.75rem;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+    }
+
+    .terminal-cmd {
+      color: var(--text-highlight);
+      white-space: pre-wrap;
+      word-break: break-all;
+    }
+
+    footer {
+      border-top: 1px solid var(--surface-border);
+      background-color: var(--surface);
+      padding: 2rem 1.5rem;
+      text-align: center;
+      font-size: 0.875rem;
+      color: var(--text-muted);
+    }
+
+    .footer-links {
+      display: flex;
+      justify-content: center;
+      flex-wrap: wrap;
+      gap: 1.5rem;
+      margin-bottom: 1rem;
+    }
+
+    .footer-links a {
+      color: var(--text-muted);
+      text-decoration: none;
+      transition: color 0.15s ease;
+    }
+
+    .footer-links a:hover {
+      color: var(--text-highlight);
+    }
+  </style>
+</head>
+<body>
+
+  <header>
+    <a href="./" class="brand">
+      <svg class="brand-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>
+        <circle cx="12" cy="12" r="3"/>
+      </svg>
+      <span>RansomEye</span>
+    </a>
+    <nav class="nav-links">
+      <a href="https://github.com/niranjan867/RansomEye" target="_blank" rel="noopener noreferrer">Source Code</a>
+      <a href="https://github.com/niranjan867/RansomEye/issues" target="_blank" rel="noopener noreferrer">Issues</a>
+      <a href="https://github.com/niranjan867/RansomEye/blob/main/PRIVACY.md" target="_blank" rel="noopener noreferrer">Privacy</a>
+    </nav>
+  </header>
+
+  <main>
+    <section class="hero">
+      <div class="badge">
+        <span class="badge-dot"></span>
+        Official Release Candidate &bull; v1.0.0-rc.3
+      </div>
+      <h1>RansomEye</h1>
+      <p class="tagline">From ransomware signal to forensic proof.</p>
+      <p class="description">
+        Defensive endpoint threat detection, digital forensics, and incident investigation platform for Windows.
+      </p>
+
+      <div class="cta-card">
+        <a href="./RansomEye.exe" class="download-btn" id="downloadButton">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
+            <polyline points="7 10 12 15 17 10"/>
+            <line x1="12" y1="15" x2="12" y2="3"/>
+          </svg>
+          Download RansomEye.exe
+        </a>
+
+        <div class="release-meta">
+          <span>Version: <strong class="meta-strong">v1.0.0-rc.3</strong></span>
+          <span>Platform: <strong class="meta-strong">Windows 10/11 x64</strong></span>
+          <span>Size: <strong class="meta-strong">21.1 MB</strong> (21,100,919 bytes)</span>
+          <span>Type: <strong class="meta-strong">Standalone Portable</strong></span>
+        </div>
+
+        <div class="checksum-box">
+          <div class="checksum-header">
+            <span>SHA-256 Checksum</span>
+            <button class="copy-btn" id="copyChecksumBtn" onclick="copyHash()">Copy</button>
+          </div>
+          <div class="checksum-value" id="sha256Value">F22F93B2A5855FA906CF8816EB893D77769FCE095216E5B36A55F251C11CB871</div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Usage Guidance -->
+    <div class="notice-card notice-info">
+      <div class="notice-title">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/></svg>
+        Standalone Portable Application
+      </div>
+      <div class="notice-body">
+        RansomEye is a standalone portable Windows executable — no installation, administrative installer, or background services required. Download and execute directly from any directory or forensic staging drive.
+      </div>
+    </div>
+
+    <!-- Security Notice -->
+    <div class="notice-card notice-info">
+      <div class="notice-title">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+        Security Notice & Authenticity Verification
+      </div>
+      <div class="notice-body">
+        Always verify that you downloaded RansomEye from the official repository (<code>niranjan867/ransomeye-releases</code>) and validate the SHA-256 checksum before execution.
+        <div class="verify-terminal">
+          <div class="terminal-label">PowerShell Checksum Verification</div>
+          <div class="terminal-cmd">Get-FileHash .\RansomEye.exe -Algorithm SHA256</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- SmartScreen Notice -->
+    <div class="notice-card notice-warning">
+      <div class="notice-title">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m21.73 18-8-14a2 2 0 0 0-3.48 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.73-3Z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
+        Windows SmartScreen & Antivirus Notice
+      </div>
+      <div class="notice-body">
+        Windows SmartScreen or antivirus heuristic warnings may occur for newly published software releases that lack an established Microsoft reputation certificate. Such warnings should be investigated rather than blindly bypassed: verify the SHA-256 checksum matches the published value above and inspect the open-source codebase for full transparency.
+      </div>
+    </div>
+
+    <!-- Key Capabilities Section -->
+    <section style="margin-top: 3.5rem;">
+      <h2 class="section-title">
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="12 2 2 7 12 12 22 7 12 2"/><polyline points="2 17 12 22 22 17"/><polyline points="2 12 12 17 22 12"/></svg>
+        Key Forensic & Detection Capabilities
+      </h2>
+      <div class="features-grid">
+        <div class="feature-card">
+          <div class="feature-title">Static PE Analysis</div>
+          <div class="feature-desc">Deep structural inspection of Windows executables, section headers, entropy calculation, and compiler signatures.</div>
+        </div>
+        <div class="feature-card">
+          <div class="feature-title">Script Analysis</div>
+          <div class="feature-desc">Automated analysis of PowerShell, Batch, VBScript, and shell scripts for obfuscation, payloads, and malicious patterns.</div>
+        </div>
+        <div class="feature-card">
+          <div class="feature-title">PCAP Analysis</div>
+          <div class="feature-desc">Network packet capture parsing for C2 beaconing, exfiltration flows, DNS tunneling, and suspicious network traffic.</div>
+        </div>
+        <div class="feature-card">
+          <div class="feature-title">IOC Extraction</div>
+          <div class="feature-desc">Automatic extraction and normalization of IP addresses, domains, hashes, registry keys, and file path indicators.</div>
+        </div>
+        <div class="feature-card">
+          <div class="feature-title">Kill-Chain Reconstruction</div>
+          <div class="feature-desc">Timeline mapping aligning detected artifacts with MITRE ATT&CK techniques and ransomware kill-chain stages.</div>
+        </div>
+        <div class="feature-card">
+          <div class="feature-title">Threat Assessment</div>
+          <div class="feature-desc">Rule-based scoring engine evaluating malicious potential, behavioral risk metrics, and defensive priorities.</div>
+        </div>
+        <div class="feature-card">
+          <div class="feature-title">PDF Forensic Reports</div>
+          <div class="feature-desc">Production of audit-ready, tamper-evident forensic PDF incident reports detailing complete case findings.</div>
+        </div>
+        <div class="feature-card">
+          <div class="feature-title">Evidence Chain of Custody</div>
+          <div class="feature-desc">Cryptographic hashing and custody logging guaranteeing non-repudiation and evidential integrity for court or audits.</div>
+        </div>
+        <div class="feature-card">
+          <div class="feature-title">Analyst Dashboard</div>
+          <div class="feature-desc">Intuitive investigation console designed for incident responders to triage, query, and dissect threats efficiently.</div>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <footer>
+    <div class="footer-links">
+      <a href="https://github.com/niranjan867/RansomEye" target="_blank" rel="noopener noreferrer">Main Repository</a>
+      <a href="https://github.com/niranjan867/ransomeye-releases" target="_blank" rel="noopener noreferrer">Releases Repository</a>
+      <a href="https://github.com/niranjan867/RansomEye/issues" target="_blank" rel="noopener noreferrer">Report an Issue</a>
+      <a href="https://github.com/niranjan867/RansomEye/blob/main/PRIVACY.md" target="_blank" rel="noopener noreferrer">Privacy Policy</a>
+    </div>
+    <p>&copy; RansomEye Project. Open source defensive security software.</p>
+  </footer>
+
+  <script>
+    function copyHash() {
+      const hashText = document.getElementById('sha256Value').innerText.trim();
+      navigator.clipboard.writeText(hashText).then(() => {
+        const btn = document.getElementById('copyChecksumBtn');
+        btn.innerText = 'Copied!';
+        setTimeout(() => { btn.innerText = 'Copy'; }, 2000);
+      }).catch(err => {
+        console.error('Copy failed', err);
+      });
+    }
+  </script>
+</body>
+</html>
