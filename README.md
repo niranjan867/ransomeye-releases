@@ -72,4 +72,4 @@ When a new release candidate or production build is ready:
 ## License & Issues
 
 * Project issues and bug reports: [RansomEye Issue Tracker](https://github.com/niranjan867/RansomEye/issues)
-* Privacy policy: [Privacy Policy](https://github.com/niranjan867/RansomEye/blob/main/PRIVACY.md)
+* Privacy policy: [Privacy Policy](https://niranjan867.github.io/ransomeye-releases/PRIVACY_POLICY.md)
